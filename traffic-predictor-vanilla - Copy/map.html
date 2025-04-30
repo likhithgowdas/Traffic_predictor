@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Map View with Weather</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+    #weather {
+      font-size: 18px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 999;
+      border-radius: 5px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+</head>
+<body>
+  <div id="weather">Loading weather...</div>
+  <div id="map"></div>
+  <a href="map.html" id="details-link" target="_blank">🔍 Details</a>
+  <script>
+    const apiKey = "b5f17886733ae8cd7d5a95e27b2cf3e9"; // OpenWeather API key
+
+    // Initialize the map
+    const map = L.map("map").setView([0, 0], 13); // Default coordinates
+
+    // Add OpenStreetMap tiles
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Fetch weather data
+    async function fetchWeather(lat, lon) {
+      const weatherURL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+      try {
+        const response = await fetch(weatherURL);
+        const data = await response.json();
+        const weatherDescription = data.weather[0].description;
+        const temperature = data.main.temp;
+        const weatherIcon = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+        document.getElementById("weather").innerHTML = `
+          <strong>Weather:</strong> ${weatherDescription} <br>
+          <strong>Temp:</strong> ${temperature}°C <br>
+          <img src="${weatherIcon}" alt="weather icon">
+        `;
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+        document.getElementById("weather").innerText = "Weather data not available";
+      }
+    }
+
+    // Get the user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          map.setView([latitude, longitude], 13);
+
+          // Add a marker for the current location
+          L.marker([latitude, longitude])
+            .addTo(map)
+            .bindPopup("You are here!")
+            .openPopup();
+
+          // Fetch weather data based on the current location
+          fetchWeather(latitude, longitude);
+
+          // Example destination (replace with actual destination or user input)
+          const destination = [12.9716, 77.5946]; // Bangalore, India
+
+          // Add routing from the user's location to a destination
+          L.Routing.control({
+            waypoints: [
+              L.latLng(latitude, longitude),
+              L.latLng(destination[0], destination[1]),
+            ],
+            routeWhileDragging: true,
+          }).addTo(map);
+        },
+        () => {
+          alert("Unable to retrieve your location. Please enable location services.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  </script>
+</body>
+</html>

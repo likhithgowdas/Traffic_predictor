@@ -1,0 +1,105 @@
+* {
+    box-sizing: border-box;
+}
+
+  body {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  h1 {
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+  
+  input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+  }
+  
+  button {
+    background-color: #2563eb;
+    color: white;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #1e40af;
+  }
+  
+  #result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #111827;
+  }
+/* Reuse existing styles for consistency */
+
+label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 10px;
+    display: block;
+    text-align: left;
+    color: #333;
+  }
+  
+  input[type="time"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 5px 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    appearance: none;
+  }
+  #details-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  #details-link:hover {
+    color: #1e40af;
+    text-decoration: underline;
+  }
+  #bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+  }
+  

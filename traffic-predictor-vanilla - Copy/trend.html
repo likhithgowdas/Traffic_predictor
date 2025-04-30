@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Traffic Trend Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #status {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    canvas {
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      max-width: 800px;
+      margin: auto;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚦 Traffic Condition & Trend</h1>
+  <div id="status">Fetching location & weather...</div>
+  <canvas id="trafficChart" width="800" height="400"></canvas>
+
+  <button onclick="window.location.href = 'map.html';">View Map</button>
+
+  <script>
+    const apiKey = "b5f17886733ae8cd7d5a95e27b2cf3e9";
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`
+        );
+        const data = await response.json();
+        const weather = data.weather[0].main.toLowerCase(); // e.g., "rain", "clear"
+
+        updateTrafficStatus(weather);
+      } catch (error) {
+        console.error("Failed to fetch weather data:", error);
+        updateTrafficStatus("clear"); // fallback
+      }
+    }, () => {
+      alert("Location access denied. Using default clear weather.");
+      updateTrafficStatus("clear");
+    });
+
+    function updateTrafficStatus(weather) {
+      const now = new Date();
+      const currentHour = now.getHours();
+
+      let status = "Low";
+      if ((currentHour >= 7 && currentHour <= 9) || (currentHour >= 17 && currentHour <= 19)) {
+        status = "High";
+      } else if (currentHour >= 12 && currentHour <= 14) {
+        status = "Medium";
+      }
+
+      if (["rain", "fog", "snow", "storm", "drizzle"].some(w => weather.includes(w))) {
+        if (status === "Low") status = "Medium";
+        else if (status === "Medium") status = "High";
+      }
+
+      const emoji = status === "High" ? "🚧" : status === "Medium" ? "🚗" : "✅";
+      document.getElementById("status").innerText = `${emoji} ${status} Congestion Now`;
+
+      drawTrafficChart();
+    }
+
+    function drawTrafficChart() {
+      const trafficVolume = Array.from({ length: 24 }, (_, hour) => {
+        if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)) return Math.floor(Math.random() * 30) + 70;
+        if (hour >= 12 && hour <= 14) return Math.floor(Math.random() * 30) + 50;
+        return Math.floor(Math.random() * 40) + 10;
+      });
+
+      new Chart(document.getElementById("trafficChart").getContext("2d"), {
+        type: "line",
+        data: {
+          labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+          datasets: [{
+            label: "Predicted Traffic Volume",
+            data: trafficVolume,
+            borderColor: "#ffffff",
+            backgroundColor: "rgba(255, 255, 255, 0.3)",
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: "#000"
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: { display: true, text: 'Volume (%)' }
+            },
+            x: {
+              title: { display: true, text: 'Hour of Day' }
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
